@@ -51,7 +51,7 @@ public class ApiErrorHandler extends ResponseEntityExceptionHandler {
 	public ResponseEntity<Object> handleBadCredentialsException(BadCredentialsException ex, WebRequest request) {
 
 		BadCredentialsResponse errorResponse = new BadCredentialsResponse();
-		return new ResponseEntity<Object>(Arrays.asList(errorResponse), HttpStatus.BAD_REQUEST);
+		return new ResponseEntity<Object>(errorResponse, HttpStatus.BAD_REQUEST);
 	}
 
 }
