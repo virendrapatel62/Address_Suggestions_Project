@@ -52,7 +52,7 @@ public class JwtUtils {
         claims.put("id", userDetails.getId());
         claims.put("email", userDetails.getEmail());
         claims.put("name", userDetails.getName());
-        return createToken(claims, userDetails.getId());
+        return createToken(claims, userDetails.getEmail());
     }
 
     private String createToken(Map<String, Object> claims, Object subject) {

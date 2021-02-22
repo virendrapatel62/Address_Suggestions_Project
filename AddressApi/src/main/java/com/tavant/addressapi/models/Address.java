@@ -1,5 +1,13 @@
 package com.tavant.addressapi.models;
 
+import javax.annotation.Generated;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.OneToOne;
+import javax.persistence.Table;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -7,7 +15,14 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
+@Table(name="address")
+@Entity(name="Address")
 public class Address {
+	@Id @GeneratedValue(strategy =  GenerationType.SEQUENCE)
+	private Long id;
+	
+	@OneToOne
+	private User user;
 	 public String houseNumber;
 	    public String houseName;
 	    public String poi;
