@@ -28,9 +28,15 @@ public class AddressController {
 		User user = (User)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		System.err.println(user);
 		System.err.println(address);
-		address.setUser(user);
-		address = this.addressService.saveAddress(address);
 		
+		address.setUser(user);
+		Address userAddress = this.addressService.getAddressByUser(user); 
+
+		if(userAddress!=null) {
+			address.setId(userAddress.getId());
+		}
+		
+		address = this.addressService.saveAddress(address);
 		return ResponseEntity.ok(address);
 	}
 	
