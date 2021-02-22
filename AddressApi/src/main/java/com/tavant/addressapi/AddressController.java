@@ -38,5 +38,10 @@ public class AddressController {
 	public ResponseEntity<?> getAddresses(){
 		return ResponseEntity.ok(this.addressService.getAllAddresses());
 	}
+	@GetMapping("/me")
+	public ResponseEntity<?> getAddress(){
+		User user = (User)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		return ResponseEntity.ok(this.addressService.getAddressByUser(user));
+	}
 	
 }

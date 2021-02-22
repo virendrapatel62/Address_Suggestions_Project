@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.tavant.addressapi.models.Address;
+import com.tavant.addressapi.models.User;
 import com.tavant.addressapi.repository.AddressRepository;
 
 @Service
@@ -19,5 +20,9 @@ public class AddressService {
 	
 	public List<Address> getAllAddresses() {
 		return this.addressRepository.findAll();
+	}
+	
+	public List<Address> getAddressByUser(User user) {
+		return this.addressRepository.findByUser(user);
 	}
 }
