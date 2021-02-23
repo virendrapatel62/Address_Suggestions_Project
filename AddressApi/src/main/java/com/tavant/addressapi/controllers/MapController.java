@@ -1,4 +1,4 @@
-package com.tavant.addressapi;
+package com.tavant.addressapi.controllers;
 
 import java.net.URI;
 import java.util.HashMap;

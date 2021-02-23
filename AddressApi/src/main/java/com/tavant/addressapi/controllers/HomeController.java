@@ -12,7 +12,7 @@ import com.tavant.addressapi.models.MapAuthResponse;
 
 @RestController
 
-@CrossOrigin("*")
+//@CrossOrigin("*")
 @RequestMapping("/api")
 public class HomeController {
 	

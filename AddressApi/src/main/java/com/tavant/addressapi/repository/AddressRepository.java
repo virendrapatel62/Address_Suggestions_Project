@@ -11,5 +11,5 @@ import com.tavant.addressapi.models.User;
 
 @Repository
 public interface AddressRepository extends JpaRepository<Address, Long> {
-	public Address findByUser(User user);
+	public List<Address> findByUser(User user);
 }
