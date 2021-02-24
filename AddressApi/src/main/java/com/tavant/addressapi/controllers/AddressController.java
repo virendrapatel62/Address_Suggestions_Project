@@ -1,6 +1,10 @@
 package com.tavant.addressapi.controllers;
 
 import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVRecord;
@@ -15,8 +19,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.client.RestTemplate;
 
 import com.tavant.addressapi.models.Address;
+import com.tavant.addressapi.models.RevGeoCodeResponse;
 import com.tavant.addressapi.models.User;
 import com.tavant.addressapi.services.AddressService;
 
@@ -27,6 +33,7 @@ public class AddressController {
 
 	@Autowired
 	private AddressService addressService;
+	
 
 	@PostMapping
 	public ResponseEntity<?> saveAddress(@RequestBody Address address) {
@@ -55,26 +62,63 @@ public class AddressController {
 	@PostMapping("/file")
 	public ResponseEntity<?> uploadFile(@RequestParam("file") org.springframework.web.multipart.MultipartFile file) {
 		String message = "";
+		String headers = "";
+		
+		User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		List<Address>  addresses = new ArrayList<>();
+		List<Address>  invalidAddresses = new ArrayList<>();
+		List<Address>  validAddresses = new ArrayList<>();
 		try {
-
 			byte[] bytes = file.getInputStream().readAllBytes();
 			String csvContent = new String(bytes);
 			Iterable<CSVRecord> records = CSVFormat.DEFAULT
 					.parse(new InputStreamReader(file.getInputStream()));
 
 			for (CSVRecord record : records) {
-				record.iterator().forEachRemaining(value->{
-					System.err.print(value + ", ");
-				});
-				System.err.println();
+				if(record.getRecordNumber()>1) {
+					Address address = Address.getAddress(user, record);
+					
+					if(isValidAddress(address)) {
+					
+						validAddresses.add(addressService.saveAddress(address));
+					}else {
+						invalidAddresses.add(address);
+					}
+				}else {
+					headers = record.getParser().getHeaderNames().toString();
+				}
 			}
-			return ResponseEntity.status(HttpStatus.OK).body(csvContent);
+			Map<String, Object> resp = new HashMap<>();
+			
+			resp.put("totalAddresses", validAddresses.size()+invalidAddresses.size());
+			resp.put("validAddresses", validAddresses);
+			resp.put("invalidAddresses", invalidAddresses);
+			resp.put("error", "failed to validate addresses in map , provide valid addresses");
+			
+			return ResponseEntity.status(HttpStatus.OK).body(resp);
 
 		} catch (Exception e) {
-			message = "Could not upload the file: " + file.getOriginalFilename() + "!";
+			message = "file format is not valid , file must have thease headers \n " + headers;
 			e.printStackTrace();
-			return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body("error");
+			Map<String, String> resp = new HashMap<>();
+			resp.put("error", message);
+			return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body(resp);
 			
 		}
 	}
+	
+	private boolean isValidAddress(Address address) {
+		String raw = "https://apis.mapmyindia.com/advancedmaps/v1/l2dlc7zabjd6wx8ekzjo2ezzvt21i8b3/rev_geocode?lng=%s&lat=%s";
+		String url = String.format(raw, address.getLongitude() , address.getLatitude());
+		System.err.println(url);
+		
+		RestTemplate restTemplate = new RestTemplate();
+		RevGeoCodeResponse response=  restTemplate.getForObject(url, RevGeoCodeResponse.class);
+		if(response.getResponseCode() == 200 && response.getResults().size()>0) {
+			return true;
+		}
+		return false;
+	}
+	
+	
 }
