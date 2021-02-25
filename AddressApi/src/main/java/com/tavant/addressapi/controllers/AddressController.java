@@ -52,6 +52,11 @@ public class AddressController {
 	public ResponseEntity<?> getAddresses() {
 		return ResponseEntity.ok(this.addressService.getAllAddresses());
 	}
+	
+	@GetMapping("/search")
+	public ResponseEntity<?> search(@RequestParam String address) {
+		return ResponseEntity.ok(this.addressService.searchAddresses(address));
+	}
 
 	@GetMapping("/me")
 	public ResponseEntity<?> getAddress() {

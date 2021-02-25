@@ -25,4 +25,8 @@ public class AddressService {
 	public List<Address> getAddressByUser(User user) {
 		return this.addressRepository.findByUser(user);
 	}
+	
+	public List<Address> searchAddresses(String searchQuery) {
+		return this.addressRepository.findByFormattedAddressContaining(searchQuery);
+	}
 }
